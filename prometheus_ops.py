@@ -18,7 +18,7 @@ class PrometheusOperator:
             for container_metric_dict in query_response['data']['result']:
                 print(container_metric_dict['metric']['name'], container_metric_dict['value'])
 
-        return
+        return 0
 
 
 if __name__ == "__main__":
