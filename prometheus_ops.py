@@ -32,6 +32,41 @@ class PrometheusOperator:
 
         return results_dict
 
+    def get_network_receive_total(self, label_name: str, label_value: str, offset_value: str):
+
+        offset_value = self.checkoffset(offset_value)
+        query_string = 'sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*"}})-' \
+                       '(sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_value}))'.format(label=label_name,
+                                                                                                                               label_value=label_value,
+                                                                                                                                           offset_value=offset_value)
+        response = requests.get(self.prometheus_address + '/api/v1/query',
+                                params={'query': query_string})
+        query_response = response.json()
+
+        results_dict = {}
+        if query_response['status'] == "success":
+            for container_metric_dict in query_response['data']['result']:
+                results_dict[container_metric_dict['metric']['name']] = container_metric_dict['value']
+
+        return results_dict
+
+    def get_network_transmit_total(self, label_name: str, label_value: str, offset_value: str):
+
+        offset_value = self.checkoffset(offset_value)
+        query_string = 'sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*"}})-' \
+                       '(sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_value}))'.format(label=label_name,
+                                                                                                                               label_value=label_value,
+                                                                                                                                           offset_value=offset_value)
+        response = requests.get(self.prometheus_address + '/api/v1/query',
+                                params={'query': query_string})
+        query_response = response.json()
+
+        results_dict = {}
+        if query_response['status'] == "success":
+            for container_metric_dict in query_response['data']['result']:
+                results_dict[container_metric_dict['metric']['name']] = container_metric_dict['value']
+
+        return results_dict
 
     def get_ram_total(self, label_name: str, label_value: str,
                       offset_value: str, resolution:str):
@@ -82,9 +117,15 @@ class PrometheusOperator:
                                       offset_value=offset_value, resolution=resolution)
         disk_dict = self.get_disk_total(label_name=label_name, label_value=label_value,
                                       offset_value=offset_value, resolution=resolution)
+        network_receive = self.get_network_receive_total(label_name=label_name, label_value=label_value,
+                           offset_value=offset_value)
+        network_transmit = self.get_network_transmit_total(label_name=label_name, label_value=label_value,
+                                                       offset_value=offset_value)
         all_dict = {key: {'cpu': cpu_dict.get(key),
                           'ram': ram_dict.get(key),
-                          'disk': disk_dict.get(key)} for key in cpu_dict}
+                          'disk': disk_dict.get(key),
+                          'network_receive': network_receive.get(key),
+                          'network_transmit': network_transmit.get(key)} for key in cpu_dict}
 
         return all_dict
 
