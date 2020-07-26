@@ -55,6 +55,16 @@ class PrometheusOperator:
         return results_dict
 
 
+    def get_all_total(self, label_name: str, label_value: str,
+                      offset_value: str, resolution:str):
+        cpu_dict = self.get_cpu_total(label_name=label_name, label_value=label_value,
+                           offset_value=offset_value)
+        ram_dict = self.get_ram_total(label_name=label_name, label_value=label_value,
+                                      offset_value=offset_value, resolution=resolution)
+        all_dict = {key: {'cpu': cpu_dict[key], 'ram': ram_dict[key]} for key in cpu_dict}
+
+        return all_dict
+
 if __name__ == "__main__":
 
     prop = PrometheusOperator()
