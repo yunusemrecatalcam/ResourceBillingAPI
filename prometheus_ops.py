@@ -14,13 +14,18 @@ class PrometheusOperator:
         else:
             return "30d"
 
-    def get_cpu_total(self, label_name: str, label_value: str, offset_value: str):
+    @staticmethod
+    def timestamp2offset(timestamp: int):
+        diff = str(int(time.time()) - timestamp) + 's'
+        return diff if diff != '0s' else "1s"
 
-        offset_value = self.checkoffset(offset_value)
-        query_string = 'sum by (name) (container_cpu_usage_seconds_total{{ {label}=~".*{label_value}.*"}})-' \
-                       '(sum by (name) (container_cpu_usage_seconds_total{{ {label}=~".*{label_value}.*"}} offset {offset_value}))'.format(label=label_name,
-                                                                                                                               label_value=label_value,
-                                                                                                                                           offset_value=offset_value)
+    def get_cpu_total(self, label_name: str, label_value: str, t1: int, t2: int):
+
+        query_string = 'sum by (name) (container_cpu_usage_seconds_total{{ {label}=~".*{label_value}.*"}} offset {offset_2})-' \
+                       '(sum by (name) (container_cpu_usage_seconds_total{{ {label}=~".*{label_value}.*"}} offset {offset_1}))'.format(label=label_name,
+                                                                                                                                       label_value=label_value,
+                                                                                                                                       offset_1=t1,
+                                                                                                                                       offset_2=t2)
         response = requests.get(self.prometheus_address + '/api/v1/query',
                                 params={'query': query_string})
         query_response = response.json()
@@ -132,6 +137,13 @@ class PrometheusOperator:
 if __name__ == "__main__":
 
     prop = PrometheusOperator()
+    ts = int(time.time())-600#1595849010
+    t2 = int(time.time())
+    prop.get_cpu_total(label_name='container_label_com_docker_swarm_service_name',
+                       label_value='sc_tlsnr',
+                       t1=prop.timestamp2offset(ts),
+                        t2=prop.timestamp2offset(t2),
+                       )
     prop.get_all_total(label_name='container_label_com_docker_swarm_service_name',
                        label_value='sc_tlsnr',
                        offset_value="10m",
