@@ -37,13 +37,13 @@ class PrometheusOperator:
 
         return results_dict
 
-    def get_network_receive_total(self, label_name: str, label_value: str, offset_value: str):
+    def get_network_receive_total(self, label_name: str, label_value: str, t1: int, t2: int):
 
-        offset_value = self.checkoffset(offset_value)
-        query_string = 'sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*"}})-' \
-                       '(sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_value}))'.format(label=label_name,
+        query_string = 'sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_2})-' \
+                       '(sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_1}))'.format(label=label_name,
                                                                                                                                label_value=label_value,
-                                                                                                                                           offset_value=offset_value)
+                                                                                                                                           offset_1=t1,
+                                                                                                                                           offset_2=t2)
         response = requests.get(self.prometheus_address + '/api/v1/query',
                                 params={'query': query_string})
         query_response = response.json()
@@ -55,13 +55,13 @@ class PrometheusOperator:
 
         return results_dict
 
-    def get_network_transmit_total(self, label_name: str, label_value: str, offset_value: str):
+    def get_network_transmit_total(self, label_name: str, label_value: str, t1: int, t2: int):
 
-        offset_value = self.checkoffset(offset_value)
-        query_string = 'sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*"}})-' \
-                       '(sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_value}))'.format(label=label_name,
+        query_string = 'sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_2})-' \
+                       '(sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_1}))'.format(label=label_name,
                                                                                                                                label_value=label_value,
-                                                                                                                                           offset_value=offset_value)
+                                                                                                                                            offset_1=t1,
+                                                                                                                                            offset_2=t2)
         response = requests.get(self.prometheus_address + '/api/v1/query',
                                 params={'query': query_string})
         query_response = response.json()
