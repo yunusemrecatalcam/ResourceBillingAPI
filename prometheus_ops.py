@@ -19,11 +19,15 @@ class PrometheusOperator:
         diff = str(int(time.time()) - timestamp) + 's'
         return diff if diff != '0s' else "1s"
 
-    def get_cpu_total(self, label_name: str, label_value: str, t1: int, t2: int):
+    def get_cpu_total(self, label_name: str, label_value: str,
+                      label_name2: str, label_value2: str,
+                      t1: int, t2: int):
 
-        query_string = 'sum by (name) (container_cpu_usage_seconds_total{{ {label}=~".*{label_value}.*"}} offset {offset_2})-' \
-                       '(sum by (name) (container_cpu_usage_seconds_total{{ {label}=~".*{label_value}.*"}} offset {offset_1}))'.format(label=label_name,
+        query_string = 'sum by (name) (container_cpu_usage_seconds_total{{ {label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}} offset {offset_2})-' \
+                       '(sum by (name) (container_cpu_usage_seconds_total{{ {label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}} offset {offset_1}))'.format(label=label_name,
                                                                                                                                        label_value=label_value,
+                                                                                                                                       label2=label_name2,
+                                                                                                                                       label_value2=label_value2,
                                                                                                                                        offset_1=t1,
                                                                                                                                        offset_2=t2)
         response = requests.get(self.prometheus_address + '/api/v1/query',
@@ -117,12 +121,15 @@ class PrometheusOperator:
         return results_dict
 
     def get_all_total(self, label_name: str, label_value: str,
+                      label_name2: str, label_value2: str,
                       t1: int, t2: int, resolution: str):
 
         offset1 = self.timestamp2offset(t1)
         offset2 = self.timestamp2offset(t2)
         cpu_dict = self.get_cpu_total(label_name=label_name,
                                       label_value=label_value,
+                                      label_name2=label_name2,
+                                      label_value2=label_value2,
                                       t1=offset1,
                                       t2=offset2)
 
@@ -155,6 +162,8 @@ if __name__ == "__main__":
 
     prop.get_all_total(label_name='container_label_com_docker_swarm_service_name',
                        label_value='sc_tlsnr',
+                       label_name2='container_label_com_docker_swarm_task_name',
+                       label_value2='yves_sc_tlsnr',
                        t1=ts, t2=t2,
                        resolution="1s")
     print("Done!")
