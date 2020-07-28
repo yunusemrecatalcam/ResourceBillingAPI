@@ -15,6 +15,9 @@ def calculate():
     timestamp2 = int(request.args.get('t2'))
     resolution = request.args.get('resolution')
 
+    if timestamp2 <= timestamp1:
+        return "t2 should be bigger than t1"
+
     if all(v is not None for v in[label, value,
                                   label2, value2,
                                   timestamp1, timestamp2, resolution]):
