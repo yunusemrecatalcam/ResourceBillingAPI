@@ -32,3 +32,6 @@ def calculate():
     else:
         return "Be sure the you set all the required fields; \n" \
                "label_name, label_value, offset_value, resolution"
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
