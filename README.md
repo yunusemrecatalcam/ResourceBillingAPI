@@ -46,3 +46,8 @@ Run
 ```
 docker run --network=host -e prom_addr=http://58.18.155.36:9090 -it resourcebilling:latest
 ```
+
+##Sample Request
+http://127.0.0.1:8000/?label_name=container_label_com_docker_swarm_service_name&label_value=devops_prometheus&label_name2=container_label_com_docker_stack_namespace&label_value2=devops&resolution=1h&t1=1595939855&t2=1595940455
+
+![Postman Screenshot](Screenshot%20from%202020-07-28%2021-03-20.png)
