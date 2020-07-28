@@ -41,13 +41,17 @@ class PrometheusOperator:
 
         return results_dict
 
-    def get_network_receive_total(self, label_name: str, label_value: str, t1: int, t2: int):
+    def get_network_receive_total(self, label_name: str, label_value: str,
+                                  label_name2: str, label_value2: str,
+                                  t1: int, t2: int):
 
-        query_string = 'sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_2})-' \
-                       '(sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_1}))'.format(label=label_name,
-                                                                                                                               label_value=label_value,
-                                                                                                                                           offset_1=t1,
-                                                                                                                                           offset_2=t2)
+        query_string = 'sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}} offset {offset_2})-' \
+                       '(sum by (name) (container_network_receive_bytes_total{{ {label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}} offset {offset_1}))'.format(label=label_name,
+                                                                                                                                                                           label_value=label_value,
+                                                                                                                                                                           label2=label_name2,
+                                                                                                                                                                           label_value2=label_value2,
+                                                                                                                                                                           offset_1=t1,
+                                                                                                                                                                           offset_2=t2)
         response = requests.get(self.prometheus_address + '/api/v1/query',
                                 params={'query': query_string})
         query_response = response.json()
@@ -59,13 +63,17 @@ class PrometheusOperator:
 
         return results_dict
 
-    def get_network_transmit_total(self, label_name: str, label_value: str, t1: int, t2: int):
+    def get_network_transmit_total(self, label_name: str, label_value: str,
+                                   label_name2: str, label_value2: str,
+                                   t1: int, t2: int):
 
-        query_string = 'sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_2})-' \
-                       '(sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*"}} offset {offset_1}))'.format(label=label_name,
-                                                                                                                               label_value=label_value,
-                                                                                                                                            offset_1=t1,
-                                                                                                                                            offset_2=t2)
+        query_string = 'sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}} offset {offset_2})-' \
+                       '(sum by (name) (container_network_transmit_bytes_total{{ {label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}} offset {offset_1}))'.format(label=label_name,
+                                                                                                                                                                            label_value=label_value,
+                                                                                                                                                                            label2=label_name2,
+                                                                                                                                                                            label_value2=label_value2,
+                                                                                                                                                                            offset_1=t1,
+                                                                                                                                                                            offset_2=t2)
         response = requests.get(self.prometheus_address + '/api/v1/query',
                                 params={'query': query_string})
         query_response = response.json()
@@ -78,15 +86,18 @@ class PrometheusOperator:
         return results_dict
 
     def get_ram_total(self, label_name: str, label_value: str,
+                      label_name2: str, label_value2: str,
                       t1: int, t2: int, resolution: str):
 
         resolution = self.checkoffset(resolution)
-        query_string = 'sum_over_time(container_memory_usage_bytes{{{label}=~".*{label_value}.*"}}[{offset_1}:{resolution}]) -' \
-                       'sum_over_time(container_memory_usage_bytes{{{label}=~".*{label_value}.*"}}[{offset_2}:{resolution}])'.format(label=label_name,
-                                                                                                                    label_value=label_value,
-                                                                                                                    offset_1=t1,
-                                                                                                                    offset_2=t2,
-                                                                                                                    resolution=resolution)
+        query_string = 'sum_over_time(container_memory_usage_bytes{{{label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}}[{offset_1}:{resolution}]) -' \
+                       'sum_over_time(container_memory_usage_bytes{{{label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}}[{offset_2}:{resolution}])'.format(label=label_name,
+                                                                                                                                                                     label_value=label_value,
+                                                                                                                                                                     label2=label_name2,
+                                                                                                                                                                     label_value2=label_value2,
+                                                                                                                                                                     offset_1=t1,
+                                                                                                                                                                     offset_2=t2,
+                                                                                                                                                                     resolution=resolution)
 
         response = requests.get(self.prometheus_address + '/api/v1/query',
                                 params={'query': query_string})
@@ -100,15 +111,18 @@ class PrometheusOperator:
         return results_dict
 
     def get_disk_total(self, label_name: str, label_value: str,
-                      t1: int, t2: int, resolution: str):
+                       label_name2: str, label_value2: str,
+                       t1: int, t2: int, resolution: str):
 
         resolution = self.checkoffset(resolution)
-        query_string = 'sum_over_time(container_fs_usage_bytes{{{label}=~".*{label_value}.*"}}[{offset_1}:{resolution}]) -' \
-                       'sum_over_time(container_fs_usage_bytes{{{label}=~".*{label_value}.*"}}[{offset_2}:{resolution}])'.format(label=label_name,
-                                                                                                                    label_value=label_value,
-                                                                                                                    offset_1=t1,
-                                                                                                                    offset_2=t2,
-                                                                                                                    resolution=resolution)
+        query_string = 'sum_over_time(container_fs_usage_bytes{{{label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}}[{offset_1}:{resolution}]) -' \
+                       'sum_over_time(container_fs_usage_bytes{{{label}=~".*{label_value}.*", {label2}=~".*{label_value2}.*"}}[{offset_2}:{resolution}])'.format(label=label_name,
+                                                                                                                                                                 label_value=label_value,
+                                                                                                                                                                 label2=label_name2,
+                                                                                                                                                                 label_value2=label_value2,
+                                                                                                                                                                 offset_1=t1,
+                                                                                                                                                                 offset_2=t2,
+                                                                                                                                                                 resolution=resolution)
         response = requests.get(self.prometheus_address + '/api/v1/query',
                                 params={'query': query_string})
         query_response = response.json()
@@ -135,15 +149,22 @@ class PrometheusOperator:
 
         network_receive = self.get_network_receive_total(label_name=label_name,
                                                          label_value=label_value,
+                                                         label_name2=label_name2,
+                                                         label_value2=label_value2,
                                                          t1=offset1,
                                                          t2=offset2)
         network_transmit = self.get_network_transmit_total(label_name=label_name,
                                                            label_value=label_value,
+                                                           label_name2=label_name2,
+                                                           label_value2=label_value2,
                                                            t1=offset1,
                                                            t2=offset2)
         ram_dict = self.get_ram_total(label_name=label_name, label_value=label_value,
+                                      label_name2=label_name2, label_value2=label_value2,
                                       t1=offset1, t2=offset2, resolution=resolution)
+
         disk_dict = self.get_disk_total(label_name=label_name, label_value=label_value,
+                                        label_name2=label_name2, label_value2=label_value2,
                                         t1=offset1, t2=offset2, resolution=resolution)
 
         all_dict = {key: {'cpu': cpu_dict.get(key),
