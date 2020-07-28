@@ -74,13 +74,14 @@ class PrometheusOperator:
         return results_dict
 
     def get_ram_total(self, label_name: str, label_value: str,
-                      offset_value: str, resolution:str):
+                      t1: int, t2: int, resolution:str):
 
-        offset_value = self.checkoffset(offset_value)
         resolution = self.checkoffset(resolution)
-        query_string = 'sum_over_time(container_memory_usage_bytes{{{label}=~".*{label_value}.*"}}[{offset_value}:{resolution}])'.format(label=label_name,
+        query_string = 'sum_over_time(container_memory_usage_bytes{{{label}=~".*{label_value}.*"}}[{offset_1}:{resolution}]) -' \
+                       'sum_over_time(container_memory_usage_bytes{{{label}=~".*{label_value}.*"}}[{offset_2}:{resolution}])'.format(label=label_name,
                                                                                                                     label_value=label_value,
-                                                                                                                    offset_value=offset_value,
+                                                                                                                    offset_1=t1,
+                                                                                                                    offset_2=t2,
                                                                                                                     resolution=resolution)
 
         response = requests.get(self.prometheus_address + '/api/v1/query',
