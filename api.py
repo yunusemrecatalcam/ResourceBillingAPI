@@ -9,13 +9,15 @@ prom_op = PrometheusOperator()
 def calculate():
     label = request.args.get('label_name')
     value = request.args.get('label_value')
-    offset_value = request.args.get('offset_value')
+    timestamp1 = int(request.args.get('t1'))
+    timestamp2 = int(request.args.get('t2'))
     resolution = request.args.get('resolution')
 
-    if all(v is not None for v in[label, value, offset_value, resolution]):
+    if all(v is not None for v in[label, value, timestamp1, timestamp2, resolution]):
         all_dict = prom_op.get_all_total(label_name=label,
                            label_value=value,
-                           offset_value=offset_value,
+                           t1=timestamp1,
+                           t2=timestamp2,
                            resolution=resolution)
         return all_dict
     else:
